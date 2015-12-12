@@ -10,7 +10,7 @@ mask_exclude = imcomplement(mask_include);
 bounded_inclusive_mask = getBoundedMask(mask_include);
 
 %% test local context matching
-context_mask = getContextMask(mask_include);
+% context_mask = getContextMask(mask_include);
 
 %% test poisson blend
 im_blend = poissonBlend(test_im2, mask_include, test_im);
