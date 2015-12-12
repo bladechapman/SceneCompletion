@@ -26,9 +26,9 @@ pause
 % ssd = imfilter(I.^2, M) -2*imfilter(I, M.*T) + sum(sum((M.*T).^2))
 disp('beginning computation');
 tic
-ssd = imfilter(replacement_image(:, :, 1).^2, bounded_mask)...
-    - 2*imfilter(replacement_image(:, :, 1), template(:, :, 1))...
-    + sum(sum((template(:, :, 1)).^2));
+ssd = imfilter(replacement_image.^2, bounded_rgb_mask)...
+    - 2*imfilter(replacement_image)
+    + imfilter(replacement_image.^2, context_mask);
 disp('end computation');
 disp(toc)
 figure(10), imagesc(mat2gray(ssd));
