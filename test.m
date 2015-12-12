@@ -14,6 +14,9 @@ context_mask = getContextMask(mask_include);
 % patch = placeContext(test_im, test_im_2, context_mask);
 % figure(2), imagesc(patch);
 
+%% test retrieve graph cut
+retrieveCut(test_im, test_im2, context_mask);
+
 %% test poisson blend
 % param 1 = foreground
 % param 2 = foreground mask
