@@ -33,7 +33,7 @@ ssd = imfilter(replacement_image_lab(1).^2, bounded_mask)...
     + sum(sum((template_lab(:, :, 1)).^2));
 disp('end computation');
 disp(toc)
-figure(10), imagesc(mat2gray(ssd));
+figure(10), imshow(mat2gray(1 - ssd.^(1/2)));
 pause;
 
 % find starting pixel with smallest ssd
