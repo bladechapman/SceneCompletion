@@ -1,16 +1,15 @@
 function [ cut_mask ] = retrieveCut(im1, im2, boundary_mask, inclusive_mask) 
     cost_image = generateCostImage(im1, im2, boundary_mask);
     
+    points = getStartEndPts(cost_image);
+    
     tic
-    cut_path = dijktraPath(cost_image, boundary_mask, [300, 1], [300, 450]);
+    cut_path = dijktraPath(cost_image, boundary_mask, points(1, :), points(2, :));
     disp(toc);
     
     tic
     cut_mask = generateMaskFromPath(cut_path, inclusive_mask, boundary_mask);
     disp(toc);
-    
-    imshow(cut_mask);
-    pause;
 end
 
 function [cut_mask] = generateMaskFromPath(cut_path, inclusive_mask, boundary_mask)

@@ -4,19 +4,23 @@ addpath poissonBlend/
 addpath graphCut/
 
 %% test mask generation
-% test_im = im2double(imread('./test_images/test_1.png'));
-% test_im2 = im2double(imread('./test_images/test_2.png'));
-% mask_include = getMask(test_im);
-% mask_exclude = imcomplement(mask_include);
-% bounded_inclusive_mask = getBoundedMask(mask_include);
+test_im = im2double(imread('./test_images/test_1.png'));
+test_im2 = im2double(imread('./test_images/test_2.png'));
+mask_include = getMask(test_im);
+mask_exclude = imcomplement(mask_include);
+bounded_inclusive_mask = getBoundedMask(mask_include);
 
 %% test determine best patch placements test
-% context_mask = getContextMask(mask_include);
+context_mask = getContextMask(mask_include);
 % patch = placeContext(test_im, test_im2, context_mask);
 % figure(2), imagesc(patch);
 
 %% test retrieve graph cut
-retrieveCut(test_im, test_im2, context_mask, mask_include);
+cut_mask = retrieveCut(test_im, test_im2, context_mask, mask_include);
+
+figure(1), imshow(test_im);
+figure(2), imshow(test_im2);
+figure(3), imshow(cut_mask);
 
 %% test poisson blend
 % param 1 = foreground
