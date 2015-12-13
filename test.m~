@@ -21,7 +21,7 @@ figure(69), imshow(test_im .* repmat(region_mask_exclude, [1 1 3]) + ...
 
 % figure(2), imagesc(patch);
 figure(2), imagesc(patch);
-
+% 
 % test_im = im2double(imread('./test_images/test_1.png'));
 % test_im2 = im2double(imread('./test_images/test_2.png'));
 % mask_include = getMask(test_im);

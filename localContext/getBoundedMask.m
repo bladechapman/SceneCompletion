@@ -1,4 +1,4 @@
-function [ bounded_mask ] = getBoundedMask( original_mask )
+function [ bounded_mask, min_x, min_y ] = getBoundedMask( original_mask )
 %GETMASKBOUNDINGBOX Summary of this function goes here
 %   Detailed explanation goes here
 %   Currently only works on inclusive masks
