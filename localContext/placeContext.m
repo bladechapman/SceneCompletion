@@ -2,6 +2,7 @@ function [ best_patch, ssd_score, texture_score ] = placeContext( source_image, 
 %PLACECONTEXT Summary of this function goes here
 %   Detailed explanation goes here
 
+
 % figure(1), imshow(source_image);
 % figure(2), imshow(replacement_image);
 % figure(3), imshow(context_mask);
@@ -10,14 +11,15 @@ function [ best_patch, ssd_score, texture_score ] = placeContext( source_image, 
 ssd = zeros(size(replacement_image));
 ssd(:,:,:) = intmax;
 
+
 rgb_mask = repmat(context_mask, [1,1,3]);
 bounded_mask = getBoundedMask(context_mask);
 [mask_height, mask_width, ~] = size(bounded_mask);
-bounded_rgb_mask = repmat(bounded_mask, [1,1,3]);
 template = getBoundedMask(source_image .* rgb_mask);
 
 replacement_image_lab = rgb2lab(replacement_image(:,:,1), replacement_image(:,:,2), replacement_image(:,:,3));
 template_lab = rgb2lab(template(:,:,1), template(:,:,2), template(:,:,3));
+
 
 figure(1), imagesc(replacement_image_lab(:,:,1));
 figure(2), imshow(bounded_rgb_mask);
