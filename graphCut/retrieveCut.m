@@ -1,14 +1,8 @@
 function [ cut_mask ] = retrieveCut(im1, im2, boundary_mask) 
     cost_image = generateCostImage(im1, im2, boundary_mask);
     
-    figure(2), imagesc(cost_image);
-    pause;
-    
-    figure(3), imshow(boundary_mask);
-    pause;
-    
     tic
-    dijktraPath(cost_image, boundary_mask, [300, 1], [300, 450]);
+    cut_path = dijktraPath(cost_image, boundary_mask, [300, 1], [300, 450]);
     disp(toc);
 end
 
@@ -24,7 +18,7 @@ function [ cost_image ] = generateCostImage( im1, im2, boundary_mask )
     cost_image = cost_image + ssd;
 end
 
-function dijktraPath(cost_image, boundary_mask, start_point, end_point)
+function [cut_path] = dijktraPath(cost_image, boundary_mask, start_point, end_point)
     javaaddpath './graphCut';
     import java.util.PriorityQueue;
     
@@ -37,13 +31,12 @@ function dijktraPath(cost_image, boundary_mask, start_point, end_point)
             
         end
     end
-    disp('Done!')
-    
+    disp('Done!') 
     nodes(start_point(1), start_point(2)).weight = 0;
    
     q = PriorityQueue();
     q.add(nodes(start_point(1), start_point(2)));
-    
+    cut_path = zeros(h, w);
     
     disp('Computing dijsktra');
     while q.size() ~= 0
@@ -57,6 +50,8 @@ function dijktraPath(cost_image, boundary_mask, start_point, end_point)
         if y == end_point(1) && x == end_point(2)
             disp('found!')
             disp([y, x])
+            
+            cut_path = constructMask(nodes(y, x), h, w);
             break;
         end
         
@@ -105,5 +100,18 @@ function dijktraPath(cost_image, boundary_mask, start_point, end_point)
                 end
             end
         end
+    end
+end
+
+function [cut_mask] = constructMask(end_node, height, width)
+    cut_mask = zeros(height, width);
+    iter_node = end_node;
+    while(~isempty(iter_node.prev))
+        x = iter_node.x;
+        y = iter_node.y;
+        
+        cut_mask(y, x) = 1;
+        
+        iter_node = iter_node.prev;
     end
 end
