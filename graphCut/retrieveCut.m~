@@ -1,18 +1,85 @@
-function [ output_mask ] = retrieveCut( im1, im2, boundary_mask )
+function [ cut_mask ] = retrieveCut(im1, im2, boundary_mask) 
+    cost_image = generateCostImage(im1, im2, boundary_mask);
+    
+    dijktraPath(cost_image, [1, 300], [450, 300]);
+end
+
+function [ cost_image ] = generateCostImage( im1, im2, boundary_mask )
 %RETRIEVE_CUT Summary of this function goes here
 %   Detailed explanation goes here
-    
-%     figure(5), imshow(im1);
-%     figure(6), imshow(im2);
-%     figure(7), imshow(boundary_mask);
-    cost_image = imcomplement(boundary_mask) * 127;
+    cost_image = imcomplement(boundary_mask) * 5;
     rgb_boundary_mask = repmat(boundary_mask, [1, 1, 3]);
     im1_masked = rgb_boundary_mask .* im1;
     im2_masked = rgb_boundary_mask .* im2;
     
     ssd = sum((im1_masked - im2_masked).^2, 3);
-    
-
-    pause
+    cost_image = cost_image + ssd;
 end
 
+function dijktraPath(cost_image, start_point, end_point)
+    javaaddpath './graphCut';
+    import java.util.PriorityQueue;
+    
+    [h, w] = size(cost_image);
+    nodes(1:h, 1:w) = GraphNode();
+    disp('Generating cut nodes');
+    for y = 1:h
+        for x = 1:w
+            nodes(y, x) = GraphNode(x, y, 10000);
+        end
+    end
+    disp('Done!')
+    
+    nodes(start_point(1), start_point(2)).weight = 0;
+   
+    q = PriorityQueue();
+    q.add(nodes(start_point(1), start_point(2)));
+    
+    while q.size() ~= 0
+        pixel = q.remove();
+        x = pixel.x;
+        y = pixel.y;
+        w = pixel.weight;
+        
+        if x == 
+        
+        % for each neighbor of pixel
+        if y < h
+            north = nodes(x, y + 1);
+            alt = w + cost_image(x, y + 1);
+            if alt < north.weight
+                north.weight = alt;
+                north.prev = pixel;
+                q.add(north);
+            end
+        end
+        if y > 1 
+            south = nodes(x, y - 1);
+            alt = w + cost_image(x, y - 1);
+            if alt < south.weight
+                south.weight = alt;
+                south.prev = pixel;
+                q.add(south);
+            end
+        end
+        if x < w
+            east = nodes(x + 1, y);
+            alt = w + cost_image(x + 1, y);
+            if alt < east.weight
+                east.weight = alt;
+                east.prev = pixel;
+                q.add(east);
+            end
+        end
+        if x > 1
+            west = nodes(x - 1, y);
+            alt = w + cost_image(x - 1, y);
+            if alt < west.weight
+                west.weight = alt;
+                west.prev = pixel;
+                q.add(west);
+            end
+        end
+    end
+    
+end

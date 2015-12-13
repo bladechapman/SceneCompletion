@@ -1,6 +1,7 @@
 addpath getMask/
 addpath localContext/
 addpath poissonBlend/
+addpath graphCut/
 
 %% test mask generation
 test_im = im2double(imread('./test_images/test_1.png'));
@@ -11,7 +12,7 @@ bounded_inclusive_mask = getBoundedMask(mask_include);
 
 %% test determine best patch placements test
 context_mask = getContextMask(mask_include);
-% patch = placeContext(test_im, test_im_2, context_mask);
+% patch = placeContext(test_im, test_im2, context_mask);
 % figure(2), imagesc(patch);
 
 %% test retrieve graph cut
