@@ -1,7 +1,53 @@
+addpath poissonBlend/
+addpath localContext/
+addpath gistDescriptors/
+addpath getMask/
+
+% source_im = im2double();
+
 %% generate gist descriptors for all images
 
+% if gists do not exist:
+computegists;
+% else
+%   read in gists
+
 %% ssd all gist descriptors with gist of source image
- % to get top X best matchs
+ % to get top X best matches
  
-%% compute mask, ssd masked areas in top X images with masked area in
- % source i
+ top_indices = comparegists(source_im);
+
+%% compute mask, computer score for each top X images
+ 
+mask_include = getMask(source_im);
+mask_exclude = imcomplement(mask_include);
+context_mask = getContextMask(mask_include);
+region_mask = context_mask + mask_include;
+region_mask_exclude = imcomplement(region_mask);
+
+% loop this somehow for all images in best_matches
+[patch, ssd_score, texture_score] = ...
+    placeContext(source_im, test_im_2, context_mask, region_mask);
+
+%% computer best patch
+
+[best_score, best_ind] = max(scores);
+% best_im = im2double('im'+best_matches[best_ind]+'.png');
+
+%% graph cut
+
+% compute cut
+
+%% poisson blend
+
+% final_im = poissonBlend(cut_im, mask, source_im);
+
+%% output image
+
+% imshow(final_im);
+
+%% ???
+%% profit
+
+
+
