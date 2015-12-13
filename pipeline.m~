@@ -1,0 +1,7 @@
+%% generate gist descriptors for all images
+
+%% ssd all gist descriptors with gist of source image
+ % to get top X best matchs
+ 
+%% compute mask, ssd masked areas in top X images with masked area in
+ % source i
