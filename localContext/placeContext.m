@@ -56,18 +56,20 @@ iterable_area = ssd_vis(...
 [best_y, best_x] = ind2sub(size(iterable_area), I);
 best_y = best_y + half_mask_height;
 best_x = best_x + half_mask_width;
+
+[bounded_region_mask, ~, ~] = getBoundedMask(region_mask);
+
 small_best_patch = replacement_image(...
     best_y-half_mask_height:best_y + (mask_height - half_mask_height) - 1,...
     best_x-half_mask_width:best_x + (mask_width - half_mask_width) - 1, :);
 [patch_height, patch_width, ~] = size(small_best_patch);
 best_patch = zeros(size(source_image));
 best_patch(bounded_min_y:bounded_min_y+patch_height-1, bounded_min_x:bounded_min_y+patch_width-1, :) = ...
-    small_best_patch;
+    small_best_patch .* repmat(bounded_region_mask, [1 1 3]);
 
 % compute texture score
 orig_patch_region = source_image .* repmat(region_mask, [1 1 3]);
 [orig_patch_region, ~, ~] = getBoundedMask(orig_patch_region);
-[bounded_region_mask, ~, ~] = getBoundedMask(region_mask);
 best_patch_region = small_best_patch .* repmat(bounded_region_mask, [1 1 3]);
 texture_score = textureSimilarity(orig_patch_region, best_patch_region);
 

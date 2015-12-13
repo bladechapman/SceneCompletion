@@ -18,7 +18,7 @@ function [cut_mask] = generateMaskFromPath(cut_path, inclusive_mask, boundary_ma
     comparison_image = comparison_image + boundary_mask;
     fill_start = findZeroCoord(comparison_image);
     
-    [w, h] = size(comparison_image);
+    [h, w] = size(comparison_image);
     
     disp('filling mask')
     import java.util.LinkedList
