@@ -1,4 +1,4 @@
-function [ best_patch ] = placeContext( source_image, replacement_image, context_mask )
+function [ best_patch, ssd_score, texture_score ] = placeContext( source_image, replacement_image, context_mask, region_mask )
 %PLACECONTEXT Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,14 +7,12 @@ function [ best_patch ] = placeContext( source_image, replacement_image, context
 % figure(3), imshow(context_mask);
 % pause;
 
-% assume source and replacement images are same dimensions
 ssd = zeros(size(replacement_image));
 ssd(:,:,:) = intmax;
-[height, width, ~] = size(replacement_image);
-[mask_height, mask_width, ~] = size(context_mask);
 
 rgb_mask = repmat(context_mask, [1,1,3]);
 bounded_mask = getBoundedMask(context_mask);
+[mask_height, mask_width, ~] = size(bounded_mask);
 bounded_rgb_mask = repmat(bounded_mask, [1,1,3]);
 template = getBoundedMask(source_image .* rgb_mask);
 
@@ -24,34 +22,47 @@ template_lab = rgb2lab(template(:,:,1), template(:,:,2), template(:,:,3));
 figure(1), imagesc(replacement_image_lab(:,:,1));
 figure(2), imshow(bounded_rgb_mask);
 figure(3), imagesc(template_lab(:,:,1));
-pause
 
 % ssd = imfilter(I.^2, M) -2*imfilter(I, M.*T) + sum(sum((M.*T).^2))
 disp('beginning computation');
 tic
-ssd(:,:,1) = imfilter(replacement_image_lab(:,:,1).^2, bounded_mask)...
+ssd_L = imfilter(replacement_image_lab(:,:,1).^2, bounded_mask)...
     - 2*imfilter(replacement_image_lab(:, :, 1), template_lab(:, :, 1))...
     + sum(sum((template_lab(:, :, 1)).^2));
 
-ssd(:,:,2) = imfilter(replacement_image_lab(:,:,2).^2, bounded_mask)...
+ssd_a = imfilter(replacement_image_lab(:,:,2).^2, bounded_mask)...
     - 2*imfilter(replacement_image_lab(:, :, 2), template_lab(:, :, 2))...
     + sum(sum((template_lab(:, :, 2)).^2));
 
-ssd(:,:,3) = imfilter(replacement_image_lab(:,:,3).^2, bounded_mask)...
+ssd_b = imfilter(replacement_image_lab(:,:,3).^2, bounded_mask)...
     - 2*imfilter(replacement_image_lab(:, :, 3), template_lab(:, :, 3))...
     + sum(sum((template_lab(:, :, 3)).^2));
 
-ssd = sum(ssd(:, :));
-
+ssd = ssd_L + ssd_a + ssd_b;
+ssd_vis = 1 - ssd.^(1/2);
 disp('end computation');
 disp(toc)
-figure(10), imshow(mat2gray(1 - ssd.^(1/2)));
-pause;
+figure(10), imshow(mat2gray(ssd_vis));
 
 % find starting pixel with smallest ssd
-% [M, I] = min(ssd(:));
-% [best_y, best_x] = ind2sub(size(ssd), I);
-% best_patch = replacement_image(best_y:best_y + mask_height, best_x + mask_width);
-best_patch = 0;
+half_mask_height = ceil(mask_height / 2.0);
+half_mask_width = ceil(mask_width / 2.0);
+[height, width] = size(ssd_vis);
+[ssd_score, I] = max(ssd_vis(...
+                    1+half_mask_height:height-half_mask_height,...
+                    1+half_mask_width:width-half_mask_width));
+[best_y, best_x] = ind2sub(size(ssd_vis), I);
+best_y = best_y + half_mask_height, best_x + half_mask_width;
+best_x = best_x + half_mask_width;
+best_patch = replacement_image(...
+    best_y-half_mask_height:best_y + (mask_height - half_mask_height) - 1,...
+    best_x-half_mask_width:best_x + (mask_width - half_mask_width) - 1, :);
+
+orig_patch_region = source_image .* repmat(region_mask, [1 1 3]);
+orig_patch_region = getBoundedMask(orig_patch_region);
+best_patch_region = best_patch .* repmat(getBoundedMask(region_mask), [1 1 3]);
+texture_score = textureSimilarity(orig_patch_region, best_patch_region);
+
+figure(4), imshow(best_patch);
 end
 
