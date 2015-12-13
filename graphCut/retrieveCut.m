@@ -1,9 +1,91 @@
-function [ cut_mask ] = retrieveCut(im1, im2, boundary_mask) 
+function [ cut_mask ] = retrieveCut(im1, im2, boundary_mask, inclusive_mask) 
     cost_image = generateCostImage(im1, im2, boundary_mask);
     
     tic
     cut_path = dijktraPath(cost_image, boundary_mask, [300, 1], [300, 450]);
     disp(toc);
+    
+    tic
+    cut_mask = generateMaskFromPath(cut_path, inclusive_mask, boundary_mask);
+    disp(toc);
+    
+    imshow(cut_mask);
+    pause;
+end
+
+function [cut_mask] = generateMaskFromPath(cut_path, inclusive_mask, boundary_mask)
+    comparison_image = inclusive_mask * 2;
+    comparison_image = comparison_image + cut_path * 2;
+    comparison_image = comparison_image + boundary_mask;
+    fill_start = findZeroCoord(comparison_image);
+    
+    [w, h] = size(comparison_image);
+    
+    disp('filling mask')
+    import java.util.LinkedList
+    q = LinkedList();
+    q.add(fill_start);
+    comparison_image(fill_start(1), fill_start(2)) = -1;
+    
+    i = 0;
+    while q.size() ~= 0
+        pixel = q.remove();
+        x = pixel(2);
+        y = pixel(1);
+        
+        north = pixel(1) + 1;
+        south = pixel(1) - 1;
+        east = pixel(2) + 1;
+        west = pixel(2) - 1;
+        
+        i = i + 1;
+        disp([i, q.size()]);
+        
+        if north <= h && (comparison_image(north, x) == 1 || comparison_image(north, x) == 0)
+            q.add([north, x]);
+            comparison_image(north, x) = -1;
+        end
+        
+        if south >= 1 && (comparison_image(south, x) == 1 || comparison_image(south, x) == 0)
+            q.add([south, x]);
+            comparison_image(south, x) = -1;
+        end
+        
+        if east <= w && (comparison_image(y, east) == 1 || comparison_image(y, east) == 0)
+            q.add([y, east]);
+            comparison_image(y, east) = -1;
+        end
+        
+        if west >= 1 && (comparison_image(y, west) == 1 || comparison_image(y, west) == 0)
+            q.add([y, west]);
+            comparison_image(y, west) = -1;
+        end
+    end
+    disp('done')
+    
+    disp('correcting vals')
+    comparison_image = comparison_image + 1;
+    comparison_image = ceil(comparison_image / 3);
+    disp('done')
+    
+    cut_mask = comparison_image;
+end
+
+function [zero_coord] = findZeroCoord(image)
+    [h, w] = size(image);
+    found_flag = 0;
+    for x = 1:w
+        for y = 1:h
+            if (image(y, x) == 0)
+                zero_coord = [y, x];
+                found_flag = 1;
+                break;
+            end
+        end
+        if found_flag == 1;
+            break;
+        end
+    end
 end
 
 function [ cost_image ] = generateCostImage( im1, im2, boundary_mask )
@@ -51,7 +133,7 @@ function [cut_path] = dijktraPath(cost_image, boundary_mask, start_point, end_po
             disp('found!')
             disp([y, x])
             
-            cut_path = constructMask(nodes(y, x), h, w);
+            cut_path = constructPath(nodes(y, x), h, w);
             break;
         end
         
@@ -103,7 +185,7 @@ function [cut_path] = dijktraPath(cost_image, boundary_mask, start_point, end_po
     end
 end
 
-function [cut_mask] = constructMask(end_node, height, width)
+function [cut_mask] = constructPath(end_node, height, width)
     cut_mask = zeros(height, width);
     iter_node = end_node;
     while(~isempty(iter_node.prev))

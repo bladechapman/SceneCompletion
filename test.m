@@ -16,7 +16,7 @@ addpath graphCut/
 % figure(2), imagesc(patch);
 
 %% test retrieve graph cut
-retrieveCut(test_im, test_im2, context_mask);
+retrieveCut(test_im, test_im2, context_mask, mask_include);
 
 %% test poisson blend
 % param 1 = foreground
