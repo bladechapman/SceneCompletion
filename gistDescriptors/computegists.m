@@ -24,11 +24,11 @@ Nfeatures = sum(param.orientationsPerScale)*param.numberBlocks^2;
 gist = zeros([(finish-start+1) Nfeatures]); 
 
 % Load first image and compute gist:
-img = imread(sprintf('%s%d%s', image_name_prefix, start, image_name_extension));
+img = imread(sprintf('%s%05d%s', image_name_prefix, start, image_name_extension));
 [gist(1, :), param] = LMgist(img, '', param); % first call
 % Loop:
 for i = (start+1):finish
-   img = imread(sprintf('%s%d%s', image_name_prefix, i, image_name_extension));
+   img = imread(sprintf('%s%05d%s', image_name_prefix, i, image_name_extension));
    gist(i - start + 1, :) = LMgist(img, '', param); % the next calls will be faster
 end
 

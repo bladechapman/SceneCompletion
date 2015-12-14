@@ -166,7 +166,7 @@ function [blended_region] = solve_constraints_for_channel( source, source_mask, 
         end
     end
     % handle unvisited row (-x gradient)
-    for x = min_x:(max_x - 1)
+    for x = (min_x + 1):(max_x - 1)
         adjusted_max_y = 1;
         if (source_mask(max_y, x) >= 0.0001 || source_mask(max_y, x - 1) >= 0.0001)  % needs calculation
 

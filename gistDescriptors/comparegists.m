@@ -1,10 +1,7 @@
-function [ top_indices, gist_ssds ] = comparegists( input_image )
+function [ top_indices, gist_ssds ] = comparegists( input_image, N )
 % given an input image, calculate the distance of the gist of the image to 
 % each image in our database. once that's done, get and return the indices
 % of the N closest pictures
-
-% how many images indices to return
-N = 3;
 
 %%%%%%% computation below %%%%%%%
 

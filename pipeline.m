@@ -1,9 +1,17 @@
 addpath poissonBlend/
 addpath localContext/
 addpath gistDescriptors/
+addpath graphCut/
 addpath getMask/
 
-source_im = im2double(imread('./test_images/test_5.jpg'));
+source_im = im2double(imread('./crosslake.jpg'));
+N=10;
+
+%% compute mask
+mask_include = getMask(source_im);
+% mask_exclude = imcomplement(mask_include);
+context_mask = getContextMask(mask_include);
+region_mask = context_mask + mask_include;
 
 %% generate gist descriptors for all images
 
@@ -15,40 +23,47 @@ source_im = im2double(imread('./test_images/test_5.jpg'));
 %% ssd all gist descriptors with gist of source image
  % to get top X best matches
  
-%  [top_indices, gist_ssds] = comparegists(source_im);
+[top_indices, gist_ssds] = comparegists(source_im, N);
 
 %% compute mask, computer score for each top X images
  
-mask_include = getMask(source_im);
-% mask_exclude = imcomplement(mask_include);
-context_mask = getContextMask(mask_include);
-region_mask = context_mask + mask_include;
+
 % region_mask_exclude = imcomplement(region_mask);
+[rows, cols, colors] = size(source_im);
 
-% ssd_scores = [];
-% texture_scores = [];
+ssd_scores = zeros(N,1);
+texture_scores = zeros(N,1);
+all_patches = zeros(N, rows, cols, colors);
 
-% for...
-% read in image at current index
-test_im_2 = im2double(imread('./test_images/test_6.jpg'));
-[best_patch, ssd_score, texture_score] = ...
-    placeContext(source_im, test_im_2, context_mask, region_mask);
-
-% append
-% ssd_scores = [ssd_scores ssd_score];
-% texture_scores = [texture_scores texture_score];
-% end for
+for i=1:10
+    tic
+    % read in image at current index
+    test_im_2 = im2double(imread(sprintf('./gistDescriptors/1000beaches_renamed/im%05d.jpg',top_indices(i))));
+    [best_patch, ssd_score, texture_score] = ...
+        placeContext(source_im, test_im_2, context_mask, region_mask);
+    % append
+    ssd_scores(i) = ssd_score;
+    texture_scores(i) = texture_score;
+    all_patches(i, :,:,:) = best_patch;
+    toc
+end
 
 
 % compile all gist ssd, image ssd, and texture scores in arrays
 
-% scale each equally
-% compute scores
+% scale each equally - normalize
+ssd_scores_norm     = normalize(ssd_scores);
+gist_ssds_norm      = normalize(gist_ssds);
+texture_scores_norm = normalize(texture_scores);
+% compute scores sum
+scores = ssd_scores_norm + gist_ssds_norm + texture_scores_norm;
 % find best score
 
 %% computer best patch
 
-% [best_score, best_ind] = max(scores);
+[best_score, best_ind] = min(scores);
+best_patch = all_patches(best_ind, :, :, :);
+best_patch = reshape(best_patch,[350,500,3]);
 
 %% graph cut
 
