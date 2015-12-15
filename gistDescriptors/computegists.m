@@ -2,15 +2,14 @@ function computegists
 % given a large set of images, generates gist descriptors for each image in
 % the set, saving that file to disk so that the computation only needs to
 % be done once. cool? cool.
-addpath images/
 
 %file extension stuff so we can just chuck the images id into it
-image_name_prefix =    './images/im';
+image_name_prefix =    './gistDescriptors/images/im';
 image_name_extension = '.jpg';
 
 %range of the image ids that you wanna work with
-start = 7000;
-finish = 13999;
+start = 21000;
+finish = 29238;
 
 %%%%%%% computation follows below %%%%%%%%
 

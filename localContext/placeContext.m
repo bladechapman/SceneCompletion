@@ -21,8 +21,8 @@ replacement_image_lab = rgb2lab(replacement_image(:,:,1), replacement_image(:,:,
 template_lab = rgb2lab(template(:,:,1), template(:,:,2), template(:,:,3));
 
 
-figure(1), imagesc(replacement_image_lab(:,:,1));
-figure(3), imagesc(template_lab(:,:,1));
+% figure(1), imagesc(replacement_image_lab(:,:,1));
+% figure(3), imagesc(template_lab(:,:,1));
 
 % ssd = imfilter(I.^2, M) -2*imfilter(I, M.*T) + sum(sum((M.*T).^2))
 disp('beginning computation');
@@ -43,7 +43,7 @@ ssd = ssd_L + ssd_a + ssd_b;
 ssd_vis = 1 - ssd.^(1/2);
 disp('end computation');
 disp(toc)
-figure(10), imshow(mat2gray(ssd_vis));
+% figure(10), imshow(mat2gray(ssd_vis));
 
 % find starting pixel with smallest ssd
 half_mask_height = ceil(mask_height / 2.0);
@@ -73,6 +73,6 @@ orig_patch_region = source_image .* repmat(region_mask, [1 1 3]);
 best_patch_region = small_best_patch .* repmat(bounded_region_mask, [1 1 3]);
 texture_score = textureSimilarity(orig_patch_region, best_patch_region);
 
-figure(4), imshow(best_patch);
+% figure(4), imshow(best_patch);
 end
 
